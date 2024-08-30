@@ -1,0 +1,78 @@
+-- ui libary
+
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yhx/kwargs_Ui_Library/main/source.lua"))()
+
+local UI = Lib:Create{
+    Theme = "Dark", -- or any other theme
+    Size = UDim2.new(0, 555, 0, 400) -- default
+ }
+ 
+ local Main = UI:Tab{
+    Name = "inicio"
+ }
+ 
+ local Divider = Main:Divider{
+    Name = "inicio shit"
+ }
+ 
+ local QuitDivider = Main:Divider{
+    Name = "sair"
+ }
+
+-- Configurações
+local alcanceDeAtaque = 20 -- Defina o alcance de ataque desejado
+local tempoAntiAFK = 300 -- Tempo em segundos para a função anti-AFK
+local scriptAtivo = true -- Variável para ativar/desativar o script
+
+-- Função para atacar jogadores dentro do alcance
+local function atacarJogadores()
+    local jogador = game.Players.LocalPlayer
+    local personagem = jogador.Character or jogador.CharacterAdded:Wait()
+    local humanoide = personagem:WaitForChild("Humanoid")
+    
+    while true do
+        if scriptAtivo then
+            for _, inimigo in pairs(game.Players:GetPlayers()) do
+                if inimigo ~= jogador and inimigo.Character and inimigo.Character:FindFirstChild("HumanoidRootPart") then
+                    local distancia = (personagem.HumanoidRootPart.Position - inimigo.Character.HumanoidRootPart.Position).Magnitude
+                    if distancia <= alcanceDeAtaque then
+                        -- Ataque o inimigo (substitua esta linha com a lógica de ataque do seu jogo)
+                        print("Atacando " .. inimigo.Name)
+                    end
+                end
+            end
+        end
+        wait(1) -- Verifica a cada segundo
+    end
+end
+
+-- Função anti-AFK
+local function antiAFK()
+    local jogador = game.Players.LocalPlayer
+    while true do
+        wait(tempoAntiAFK)
+        if scriptAtivo then
+            local humanoide = jogador.Character and jogador.Character:FindFirstChild("Humanoid")
+            if humanoide then
+                humanoide:Move(Vector3.new(0, 0, 0), true) -- Movimenta o jogador para evitar AFK
+            end
+        end
+    end
+end
+
+-- Função para alternar o estado do script
+local function alternarScript()
+    scriptAtivo = not scriptAtivo
+    print("Script ativo: " .. tostring(scriptAtivo))
+end
+
+-- Conectar a função de alternância a uma tecla (por exemplo, "P")
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.P and not gameProcessed then
+        alternarScript()
+    end
+end)
+
+-- Iniciar as funções
+spawn(atacarJogadores)
+spawn(antiAFK)
